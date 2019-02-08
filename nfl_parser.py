@@ -4,7 +4,7 @@ import time
 
 class GameScore(dict):
 
-    def __init__(self, status, hometeam, awayteam, homescore, awayscore):
+    def __init__(self, status, hometeam, awayteam, awayscore, homescore):
         self.hometeam = hometeam
         self.awayteam = awayteam
         self.homescore = homescore
@@ -29,10 +29,8 @@ def pullNflScores():
     currentIsoTime = int(round(time.time() * 1000))
     for game in nflGames:
         gameSchedule = game['gameSchedule']
-        #print(gameSchedule['gameType']+": "+gameSchedule['visitorDisplayName']+" @ "+gameSchedule['homeDisplayName'])
         if game['score']:
-            #print("Game already started, score is:"+"{}{}".format(game['score']['visitorTeamScore']['pointTotal'], game['score']['homeTeamScore']['pointTotal']))
-            scoreList.append(GameScore("LIVE", gameSchedule['homeNickname'], gameSchedule['visitorNickname'], game['score']['visitorTeamScore']['pointTotal'], game['score']['homeTeamScore']['pointTotal']))
+            scoreList.append(GameScore(game['score']['phase'], gameSchedule['homeNickname'], gameSchedule['visitorNickname'], game['score']['visitorTeamScore']['pointTotal'], game['score']['homeTeamScore']['pointTotal']))
         else:
             timedeltaMillis = game['gameSchedule']['isoTime'] - currentIsoTime
             waittime = convertMillisToTime(timedeltaMillis)

@@ -1,0 +1,26 @@
+{
+  "name": "nflauroraapi",
+  "version": "1.0.0",
+  "description": "Web Service to recieve JSON and activate nanoleaf aurora",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samuelJost/nfl_aurora.git"
+  },
+  "author": "samuelJost",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samuelJost/nfl_aurora/issues"
+  },
+  "homepage": "https://github.com/samuelJost/nfl_aurora#readme",
+  "devDependencies": {
+    "nodemon": "^1.18.9"
+  },
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
