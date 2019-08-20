@@ -44,7 +44,8 @@ def pullNflScores():
 def main():
     scoreList = pullNflScores()
     for score in scoreList:
-        print(json.dumps(score.__dict__))
+        r = requests.post(url = 'http://localhost:3000/results', json = score.__dict__)
+        print(r.status_code)
 
 if __name__ == '__main__':
     main()

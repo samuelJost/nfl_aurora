@@ -1,7 +1,12 @@
 var express = require('express'),
   app = express(),
   port = process.env.PORT || 3000,
+  mongoose = require('mongoose'),
+  Score = require('./api/models/resultModel'),
   bodyParser = require('body-parser');
+
+  mongoose.Promise = global.Promise;
+  mongoose.connect('mongodb://localhost/Scoredb');
 
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
