@@ -7,35 +7,34 @@ exports.list_all_games = function(req, res){
   Score.find({}, function(err, score){
     if(err)
       res.send(err);
-
-    console.log(score);
     res.json(score);
+  });
+};
+
+exports.clean_old_games = function(req, res){
+  console.log("Clean all games that are not from the current week " + req.query.actualWeek);
+  Score.deleteMany({week: {$ne: req.query.actualWeek}}, function(err, result){
+    if(err)
+      res.send(err);
+    res.send(result);
   });
 };
 
 exports.add_game = function(req, res){
   console.log('Post Request to add Game');
-  var newScore = new Score(req.body);
+  var newScore = req.body;
   Score.findOneAndUpdate(
     {
-      hometeam:req.body.hometeam,
-      awayteam:req.body.awayteam
-    }, req.body, {upsert:true}, function(err, score) {
+      hometeam:newScore.hometeam,
+      awayteam:newScore.awayteam
+    }, newScore, {upsert:true}, function(err, score) {
       if(score){
-        if(req.body.homescore + req.body.awayscore != score.homescore + score.awayscore){
+        if(newScore.homescore + newScore.awayscore != score.homescore + score.awayscore){
           console.log("was updated");
           //Send Request to Nanoleaf
+          console.log(score.hometeam+": +"+(newScore.homescore - score.homescore));
+          console.log(score.awayteam+": +"+(newScore.awayscore - score.awayscore));
         }
-
-        console.log(score.hometeam+": +"+(req.body.homescore - score.homescore));
-        console.log(score.awayteam+": +"+(req.body.awayscore - score.awayscore));
-
-      } else {
-        console.log("new game");
-        newScore.save(function(err, score){
-          if(err)
-            res.send(err);
-        });
       }
       res.json(newScore);
     });

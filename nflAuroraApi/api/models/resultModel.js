@@ -1,6 +1,5 @@
 "use strict";
 var mongoose = require('mongoose');
-mongoose.set('useNewUrlParser', true);
 var Schema = mongoose.Schema;
 
 var ScoreSchema = new Schema({
@@ -21,6 +20,9 @@ var ScoreSchema = new Schema({
       type: String,
       enum: ['UPCOMING', 'LIVE', 'FINAL']
     }]
+  },
+  week: {
+    type: String
   }
 });
 

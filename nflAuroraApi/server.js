@@ -6,7 +6,10 @@ var express = require('express'),
   bodyParser = require('body-parser');
 
   mongoose.Promise = global.Promise;
+  mongoose.set('useFindAndModify', false);
+  mongoose.set('useNewUrlParser', true);
   mongoose.connect('mongodb://localhost/Scoredb');
+
 
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
