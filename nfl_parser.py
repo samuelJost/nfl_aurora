@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+import click
 
 class GameScore(dict):
 
@@ -15,12 +16,10 @@ class GameScore(dict):
     def toString(self):
         return "{}: {} > {} {} - {} {}".format(self.week, self.status, self.hometeam, self.homescore, self.awayscore, self.awayteam)
 
-def convertMillisToTime(miliseconds):
-    seconds = miliseconds / 1000
-    remainer, seconds = divmod((miliseconds / 1000), 60)
-    remainer, minutes = divmod(remainer, 60)
-    days, hours = divmod(remainer, 24)
-    return seconds, minutes, hours, days
+def pullNflJSON():
+    httpResponse = requests.get("https://feeds.nfl.com/feeds-rs/scores.json")
+    nflJson = httpResponse.json()
+    return nflJson
 
 def pullNflScores(nflJson):
     scoreList = []
@@ -40,24 +39,35 @@ def pullNflScores(nflJson):
 
     return scoreList
 
-
-def main():
-    nflJson = pullNflJSON()
-    deleteOldGames(nflJson)
-    scoreList = pullNflScores(nflJson)
-    for score in scoreList:
-        r = requests.post(url = 'http://localhost:3000/results', json = score.__dict__)
-        print(r.status_code)
-
 def deleteOldGames(nflJson):
     actualWeek = nflJson['seasonType']+str(nflJson['week'])
     r = requests.delete(url = 'http://localhost:3000/results', params = {'actualWeek':actualWeek})
     print(r.text)
 
-def pullNflJSON():
-    httpResponse = requests.get("https://feeds.nfl.com/feeds-rs/scores.json")
-    nflJson = httpResponse.json()
-    return nflJson
+def convertMillisToTime(miliseconds):
+    seconds = miliseconds / 1000
+    remainer, seconds = divmod(seconds, 60)
+    remainer, minutes = divmod(remainer, 60)
+    days, hours = divmod(remainer, 24)
+    return seconds, minutes, hours, days
+
+@click.group()
+def menu():
+    pass
+
+@click.command()
+def pull_games():
+    scoreList = pullNflScores(nflJson)
+    for score in scoreList:
+        r = requests.post(url = 'http://localhost:3000/results', json = score.__dict__)
+
+@click.command()
+def clean_games():
+    nflJson = pullNflJSON()
+    deleteOldGames(nflJson)
+
+menu.add_command(pull_games)
+menu.add_command(clean_games)
 
 if __name__ == '__main__':
-    main()
+    menu()
