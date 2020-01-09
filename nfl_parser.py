@@ -41,7 +41,7 @@ def pullNflScores(nflJson):
 
 def deleteOldGames(nflJson):
     actualWeek = nflJson['seasonType']+str(nflJson['week'])
-    r = requests.delete(url = 'http://localhost:3000/results', params = {'actualWeek':actualWeek})
+    r = requests.delete(url = 'http://localhost:3000/score', params = {'actualWeek':actualWeek})
     print(r.text)
 
 def convertMillisToTime(miliseconds):
@@ -57,9 +57,11 @@ def menu():
 
 @click.command()
 def pull_games():
+    nflJson = pullNflJSON()
     scoreList = pullNflScores(nflJson)
     for score in scoreList:
-        r = requests.post(url = 'http://localhost:3000/results', json = score.__dict__)
+        print("send "+score.toString())
+        r = requests.post(url = 'http://localhost:3000/score', json = score.__dict__)
 
 @click.command()
 def clean_games():

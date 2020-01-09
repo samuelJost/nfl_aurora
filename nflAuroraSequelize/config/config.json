@@ -1,0 +1,9 @@
+{
+  "development": {
+    "username": "nflAdmin",
+    "password": "mysql",
+    "database": "nflAurora",
+    "host": "localhost",
+    "dialect": "mysql"
+  }
+}

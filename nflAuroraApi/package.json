@@ -21,6 +21,8 @@
     "nodemon": "^1.18.9"
   },
   "dependencies": {
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "mysql2": "^1.7.0",
+    "sequelize": "^5.18.4"
   }
 }
