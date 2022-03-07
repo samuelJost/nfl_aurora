@@ -11,11 +11,11 @@ exports.list_all_games = function(req, res){
 };
 
 exports.clean_old_games = function(req, res){
-  console.log("Clean all games that are not from the current week " + req.query.actualWeek);
+  console.log("Clean all games that finished.");
   models.score.destroy({
     where: {
-      week: {
-        [Op.ne]: req.query.actualWeek
+      status: {
+        [Op.ne]: 'Final'
       }
     }
   })
