@@ -19,7 +19,7 @@ class GameScore(dict):
         return "{}: {} > {} {} - {} {}".format(self.week, self.status, self.hometeam, self.homescore, self.awayscore, self.awayteam)
 
 def pullNflJSON():
-    httpResponse = requests.get("https://feeds.nfl.com/feeds-rs/scores.json")
+    httpResponse = requests.get("http://static.nfl.com/liveupdate/scores/scores.json")
     nflJson = httpResponse.json()
     return nflJson
 
@@ -59,6 +59,7 @@ def menu():
 
 @click.command()
 def pull_games():
+	print("pulling games")
     nflJson = pullNflJSON()
     scoreList = pullNflScores(nflJson)
     for score in scoreList:
