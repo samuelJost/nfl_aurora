@@ -15,7 +15,7 @@ exports.clean_old_games = function(req, res){
   models.score.destroy({
     where: {
       status: {
-        [Op.ne]: 'Final'
+            [Op.ne]: 'STATUS_FINAL'
       }
     }
   })

@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     week: DataTypes.STRING,
     status: {
       type: DataTypes.ENUM,
-      values: ['UPCOMING', 'LIVE', 'FINAL']
+        values: ['STATUS_SCHEDULED', 'STATUS_IN_PROGRESS', 'STATUS_FINAL']
     }
   });
 
