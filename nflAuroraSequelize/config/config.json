@@ -10,7 +10,7 @@
     "username": "nflAdmin",
     "password": "mysql",
     "database": "nflAurora",
-    "host": "mysql",
+    "host": "nfl-aurora-mysql",
     "dialect": "mysql"
   }
 }
