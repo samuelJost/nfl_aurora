@@ -5,5 +5,12 @@
     "database": "nflAurora",
     "host": "localhost",
     "dialect": "mysql"
+  },
+  "docker": {
+    "username": "nflAdmin",
+    "password": "mysql",
+    "database": "nflAurora",
+    "host": "mysql",
+    "dialect": "mysql"
   }
 }

@@ -26,25 +26,67 @@ def pullNflJSON():
 	nflJson = httpResponse.json()
 	return nflJson
 
+def normalizeStatus(game):
+	statusType = game.get('status', {}).get('type', {})
+	rawStatus = statusType.get('name')
+	if rawStatus in ('STATUS_SCHEDULED', 'STATUS_IN_PROGRESS', 'STATUS_FINAL'):
+		return rawStatus
+
+	competitionStatus = game.get('competitions', [{}])[0].get('status', {}).get('type', {})
+	competitionRawStatus = competitionStatus.get('name')
+	if competitionRawStatus in ('STATUS_SCHEDULED', 'STATUS_IN_PROGRESS', 'STATUS_FINAL'):
+		return competitionRawStatus
+
+	state = statusType.get('state') or competitionStatus.get('state')
+	completed = statusType.get('completed')
+	if completed is True or state == 'post':
+		return 'STATUS_FINAL'
+	if state == 'pre':
+		return 'STATUS_SCHEDULED'
+	return 'STATUS_IN_PROGRESS'
+
+def extractTeamsAndScores(game):
+	competitors = game.get('competitions', [{}])[0].get('competitors', [])
+	homeTeam = None
+	awayTeam = None
+	for competitor in competitors:
+		if competitor.get('homeAway') == 'home':
+			homeTeam = competitor
+		elif competitor.get('homeAway') == 'away':
+			awayTeam = competitor
+
+	if homeTeam is None and len(competitors) > 0:
+		homeTeam = competitors[0]
+	if awayTeam is None and len(competitors) > 1:
+		awayTeam = competitors[1]
+
+	homeAbbr = (homeTeam or {}).get('team', {}).get('abbreviation')
+	awayAbbr = (awayTeam or {}).get('team', {}).get('abbreviation')
+	homeScore = (homeTeam or {}).get('score', '0')
+	awayScore = (awayTeam or {}).get('score', '0')
+
+	return homeAbbr, awayAbbr, homeScore, awayScore
+
 def pullNflScores(nflJson):
 	scoreList = []
-	TZOFFSETS = {"EDT": -14400}
 	nflGames = nflJson['events']
 	week = 'Week'+str(nflJson['week']['number'])
 	currentIsoTime = int(round(time.time() * 1000))
 	for game in nflGames:
-		if game['status']['type']['name'] == 'STATUS_SCHEDULED':
-			print(game['status']['type']['shortDetail'])
-			gameTimeAsDate = dateutil.parser.parse(game['status']['type']['shortDetail'].replace('AM', 'am').replace('PM', 'pm'), tzinfos=TZOFFSETS)
+		status = normalizeStatus(game)
+		hometeam, awayteam, homescore, awayscore = extractTeamsAndScores(game)
+		if status == 'STATUS_SCHEDULED':
+			print(game.get('status', {}).get('type', {}).get('shortDetail'))
+			gameTimeAsDate = dateutil.parser.parse(game['date'])
 			timedeltaMillis = gameTimeAsDate - datetime.datetime.now(pytz.timezone('Europe/Zurich'))
 			print(gameTimeAsDate)
 			print(timedeltaMillis)
 			waittime = convertMillisToTime(timedeltaMillis.total_seconds() * 1000)
 			waittimeString = "{:02}d {:02}:{:02}:{:02}".format(int(waittime[3]), int(waittime[2]), int(waittime[1]), int(waittime[0]))
-			scoreList.append(GameScore(week, game['status']['type']['name'], game['competitions'][0]['competitors'][0]['team']['abbreviation'], game['competitions'][0]['competitors'][1]['team']['abbreviation'], 0, 0))
+			scoreList.append(GameScore(week, status, hometeam, awayteam, homescore, awayscore))
 			print("Game starts in "+waittimeString)
 		else:
-			scoreList.append(GameScore(week, game['status']['type']['name'], game['competitions'][0]['competitors'][0]['team']['abbreviation'], game['competitions'][0]['competitors'][1]['team']['abbreviation'], game['competitions'][0]['competitors'][0]['score'], game['competitions'][0]['competitors'][1]['score']))
+			scoreList.append(GameScore(week, status, hometeam, awayteam, homescore, awayscore))
 
 	for score in scoreList:
 		print(score.toString)
