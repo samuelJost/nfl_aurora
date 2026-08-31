@@ -1,0 +1,38 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: nfl-aurora-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: nflAurora
+      MYSQL_USER: nflAdmin
+      MYSQL_PASSWORD: mysql
+      MYSQL_ROOT_PASSWORD: rootmysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-prootmysql"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  nfl-api:
+    image: node:20-alpine
+    container_name: nfl-aurora-api
+    working_dir: /app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: docker
+      PORT: 3000
+    command: sh -c "npm install && npm start"
+    volumes:
+      - ./nflAuroraSequelize:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
