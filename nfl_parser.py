@@ -79,7 +79,7 @@ def pull_nfl_scores(nfl_json):
 			timedelta_millis = game_time_as_date - datetime.datetime.now(pytz.timezone('Europe/Zurich'))
 			print(game_time_as_date)
 			print(timedelta_millis)
-			waittime = convertMillisToTime(timedelta_millis.total_seconds() * 1000)
+			waittime = convert_millis_to_time(timedelta_millis.total_seconds() * 1000)
 			waittime_string = "{:02}d {:02}:{:02}:{:02}".format(int(waittime[3]), int(waittime[2]), int(waittime[1]), int(waittime[0]))
 			score_list.append(GameScore(week, status, hometeam, awayteam, homescore, awayscore))
 			print("Game starts in "+waittime_string)

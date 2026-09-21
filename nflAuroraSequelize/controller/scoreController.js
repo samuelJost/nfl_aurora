@@ -26,10 +26,11 @@ exports.clean_old_games = function(req, res){
 exports.add_game = function(req, res){
   console.log('Post Request to add Game');
   var newScore = req.body;
+  console.log(newScore);
   models.score.findOrCreate({where: {hometeam: newScore.hometeam, awayteam: newScore.awayteam}})
   .then(([score, created]) => {
     const scoreToInsert = score;
-    console.log(newScore.homescore+"     "+scoreToInsert.id);
+    console.log("Testing homescore:" + newScore.homescore+"     "+scoreToInsert.id);
     models.score.update(
       {
         homescore: newScore.homescore,
@@ -41,8 +42,14 @@ exports.add_game = function(req, res){
         where: {id: scoreToInsert.id}
       }
     )
-    .then (result => res.json(newScore))
-    .catch( err => res.send(err));
+        .then(result => {
+          console.log('Update result:', result);
+          res.json(newScore);
+        })
+        .catch(err => {
+          console.error('Update error:', err);
+          res.status(500).send(err);
+        });
   })
   .catch( err => res.send(err));
 };
