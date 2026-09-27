@@ -11,3 +11,4 @@ my_aurora.brightness = 70
 my_aurora.effect = sys.argv[1]
 sleep(5)
 my_aurora.on = False
+sleep(2)

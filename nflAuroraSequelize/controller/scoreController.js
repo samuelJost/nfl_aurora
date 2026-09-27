@@ -1,7 +1,28 @@
 'use strict';
 var models = require('../models');
 const Sequelize = require('sequelize');
+const path = require('path');
+const { execFile } = require('child_process');
 const Op = Sequelize.Op;
+const scriptPath = path.resolve(__dirname, '../../set_effect_on_nanoleaf.py');
+
+function runScoreUpdateScript(team) {
+  return new Promise((resolve, reject) => {
+    execFile('python3', [scriptPath, team], (err, stdout, stderr) => {
+      if (stdout) {
+        console.log(stdout.trim());
+      }
+      if (stderr) {
+        console.error(stderr.trim());
+      }
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
+}
 
 exports.list_all_games = function(req, res){
   console.log('Get Request incoming: List all Games');
@@ -30,8 +51,19 @@ exports.add_game = function(req, res){
   models.score.findOrCreate({where: {hometeam: newScore.hometeam, awayteam: newScore.awayteam}})
   .then(([score, created]) => {
     const scoreToInsert = score;
+    const homeScoreChanged = !created && scoreToInsert.homescore !== newScore.homescore;
+    const awayScoreChanged = !created && scoreToInsert.awayscore !== newScore.awayscore;
+    const changedTeams = [];
+
+    if (homeScoreChanged) {
+      changedTeams.push(newScore.hometeam);
+    }
+    if (awayScoreChanged) {
+      changedTeams.push(newScore.awayteam);
+    }
+
     console.log("Testing homescore:" + newScore.homescore+"     "+scoreToInsert.id);
-    models.score.update(
+    return models.score.update(
       {
         homescore: newScore.homescore,
         awayscore: newScore.awayscore,
@@ -42,14 +74,23 @@ exports.add_game = function(req, res){
         where: {id: scoreToInsert.id}
       }
     )
-        .then(result => {
-          console.log('Update result:', result);
-          res.json(newScore);
-        })
-        .catch(err => {
-          console.error('Update error:', err);
-          res.status(500).send(err);
-        });
+    .then(result => {
+      console.log('Update result:', result);
+      if (changedTeams.length === 0) {
+        res.json(newScore);
+        return null;
+      }
+
+      return changedTeams.reduce((promise, team) => {
+        return promise.then(() => runScoreUpdateScript(team));
+      }, Promise.resolve()).then(() => {
+        res.json(newScore);
+        return null;
+      });
+    });
   })
-  .catch( err => res.send(err));
+  .catch(err => {
+    console.error('Update error:', err);
+    res.status(500).send(err);
+  });
 };
