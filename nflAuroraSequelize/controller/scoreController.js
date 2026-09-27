@@ -5,10 +5,11 @@ const path = require('path');
 const { execFile } = require('child_process');
 const Op = Sequelize.Op;
 const scriptPath = path.resolve(__dirname, '../../set_effect_on_nanoleaf.py');
+const pythonPath = path.resolve(__dirname, '../../.venv/bin/python');
 
 function runScoreUpdateScript(team) {
   return new Promise((resolve, reject) => {
-    execFile('python3', [scriptPath, team], (err, stdout, stderr) => {
+    execFile(pythonPath, [scriptPath, team], (err, stdout, stderr) => {
       if (stdout) {
         console.log(stdout.trim());
       }
