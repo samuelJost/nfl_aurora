@@ -89,6 +89,7 @@ def pull_nfl_scores(nfl_json):
 
 def delete_old_games(nfl_json):
 	actual_week = 'Week'+str(nfl_json['week']['number'])
+	print(actual_week)
 	r = requests.delete(url = 'http://localhost:3000/score', params = {'actualWeek':actual_week})
 	print(r.text)
 
