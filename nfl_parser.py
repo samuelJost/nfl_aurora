@@ -21,7 +21,6 @@ class GameScore(dict):
 
 def pull_nfl_json():
 	http_response = requests.get("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard")
-	print("Test: "+str(http_response.status_code))
 	nfl_json = http_response.json()
 	return nfl_json
 
@@ -85,9 +84,6 @@ def pull_nfl_scores(nfl_json):
 			print("Game starts in "+waittime_string)
 		else:
 			score_list.append(GameScore(week, status, hometeam, awayteam, homescore, awayscore))
-
-	for score in score_list:
-		print(score.toString)
 
 	return score_list
 
